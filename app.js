@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
 )
 
 // Private Route
-app.get("/users/:id", async (req, res) => {
+app.get("/users/:id",checkToken, async (req, res) => {
 
     const id = req.params.id
 
@@ -34,6 +34,28 @@ app.get("/users/:id", async (req, res) => {
 
 })
 
+function checkToken(req, res, next) {
+
+    const authHeader = req.headers['authorization']
+
+    const token = authHeader && authHeader.split(" ")[1]
+
+    if(!token) {
+        return res.status(401).json({ msg: 'Acesso Negado!'})
+    }
+
+    try {
+
+        const secret = process.env.SECRET
+
+        jwt.verify(token, secret)
+
+        next()
+
+    } catch(error) {
+        res.status(400).json({msg: "Token inválido"})
+    }
+}
 // Register User
 app.post('/auth/register', async (req, res) => {
 
