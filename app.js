@@ -155,7 +155,7 @@ const dbPassword = process.env.DB_PASS
 mongoose.connect(
     `mongodb+srv://${dbUser}:${dbPassword}@cluster0.8gwza.mongodb.net/?retryWrites=true&w=majority`,
 ).then(() => {
-    app.listen((process.env.PORT||3000))
+    app.listen(process.env.PORT || 3000)
     console.log('Data Base connected')
 }
 ).catch((err) => console.log(err))
