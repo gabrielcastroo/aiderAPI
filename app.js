@@ -19,28 +19,28 @@ app.get('/', (req, res) => {
 )
 
 // Register User
-app.post('/auth/register', async(req,res) => {
+app.post('/auth/register', async (req, res) => {
 
-    const {name, email, password, confirmpassword} = req.body
+    const { name, email, password, confirmpassword } = req.body
 
-    if(!name){
-        return res.status(422).json({ msg: 'O nome é obrigatório'})
+    if (!name) {
+        return res.status(422).json({ msg: 'O nome é obrigatório' })
     }
-    if(!email){
-        return res.status(422).json({ msg: 'O Email é obrigatório'})
+    if (!email) {
+        return res.status(422).json({ msg: 'O Email é obrigatório' })
     }
-    if(!password){
-        return res.status(422).json({ msg: 'A senha é obrigatória'})
+    if (!password) {
+        return res.status(422).json({ msg: 'A senha é obrigatória' })
     }
-    if(password!=confirmpassword){
-        return res.status(422).json({ msg: 'As senhas informadas não conferem'})
+    if (password != confirmpassword) {
+        return res.status(422).json({ msg: 'As senhas informadas não conferem' })
     }
 
     // check if user exists
     const userExists = await User.findOne({ email: email })
 
-    if(userExists){
-        return res.status(422).json({ msg: 'O email já está cadastrado'})
+    if (userExists) {
+        return res.status(422).json({ msg: 'O email já está cadastrado' })
     }
 
     // create password
@@ -54,17 +54,60 @@ app.post('/auth/register', async(req,res) => {
         password: passwordHash,
     })
 
-    try{
+    try {
         await user.save()
 
-        res.status(201).json({msg: 'Usuário criado com sucesso!'})
-    } catch(error) {
+        res.status(201).json({ msg: 'Usuário criado com sucesso!' })
+    } catch (error) {
 
         console.log(error)
 
-        res.status(500).json({msg: error})
+        res.status(500).json({ msg: error })
     }
-   
+
+})
+
+//Login User
+app.post("/auth/login", async (req, res) => {
+    const { email, password } = req.body
+
+    //validation
+    if (!password) {
+        return res.status(422).json({ msg: 'A senha é obrigatória' })
+    }
+    if (!email) {
+        return res.status(422).json({ msg: 'O Email é obrigatório' })
+    }
+
+    // check if user exists
+    const user = await User.findOne({ email: email })
+
+    if (!user) {
+        return res.status(404).json({ msg: 'Usuário não encontrado' })
+    }
+
+    // check if password match
+
+    const checkPassword = await bcrypt.compare(password, user.password)
+
+    if (!checkPassword) {
+        return res.status(422).json({ msg: 'Senha Iválida!' })
+    }
+
+    try {
+        const secret = process.env.SECRET
+        const token = jwt.sign({
+            id: user._id
+        }, 
+        secret,
+        )
+
+        res.status(200).json({msg: "Autenticação bem sucedida", token})
+    } catch (error) {
+        console.log(error)
+
+        res.status(500).json({ msg: error })
+    }
 })
 
 // Credenciais
