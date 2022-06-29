@@ -129,7 +129,7 @@ app.post("/auth/login", async (req, res) => {
     const checkPassword = await bcrypt.compare(password, user.password)
 
     if (!checkPassword) {
-        return res.status(422).json({ msg: 'Senha Iválida!' })
+        return res.status(422).json({ msg: 'Senha Iválida!', logged: 0 })
     }
 
     try {
