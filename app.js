@@ -140,11 +140,11 @@ app.post("/auth/login", async (req, res) => {
         secret,
         )
 
-        res.status(200).json({msg: "Autenticação bem sucedida", token})
+        res.status(200).json({msg: "Autenticação bem sucedida", token, logged: 1})
     } catch (error) {
         console.log(error)
 
-        res.status(500).json({ msg: error })
+        res.status(500).json({ msg: error, logged: 0 })
     }
 })
 
